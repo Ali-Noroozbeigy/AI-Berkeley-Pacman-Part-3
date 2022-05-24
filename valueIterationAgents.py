@@ -123,6 +123,24 @@ class ValueIterationAgent(ValueEstimationAgent):
           terminal state, you should return None.
         """
         "*** YOUR CODE HERE ***"
+
+        bestAction = None
+        maxValue = -10000
+
+        if self.mdp.isTerminal(state):
+            return bestAction
+
+        actions = self.mdp.getPossibleActions(state)
+
+        for action in actions:
+            QValue = self.computeQValueFromValues(state,action)
+
+            if QValue > maxValue:
+                maxValue = QValue
+                bestAction = action
+
+        return bestAction
+
         util.raiseNotDefined()
 
     def getPolicy(self, state):
