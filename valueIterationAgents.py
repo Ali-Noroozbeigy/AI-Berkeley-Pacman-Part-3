@@ -65,7 +65,7 @@ class ValueIterationAgent(ValueEstimationAgent):
 
         states = self.mdp.getStates()
 
-        currentStepValues={} # the updated values will be stored in this dict
+        currentStepValues= util.Counter() # the updated values will be stored in this dict
 
 
         # V0 of every state is zero
@@ -75,7 +75,7 @@ class ValueIterationAgent(ValueEstimationAgent):
         for i in range(self.iterations):
             for state in states:
                 actions = self.mdp.getPossibleActions(state)
-                maxSum = 0.0
+                maxSum = -10000
                 for action in actions:
                     probs = self.mdp.getTransitionStatesAndProbs(state, action)
                     sumOfProbValues = 0.0
@@ -83,7 +83,8 @@ class ValueIterationAgent(ValueEstimationAgent):
                         nextState, prb = prob
                         sumOfProbValues += (prb * (self.mdp.getReward(state, action, nextState) + (self.discount * self.values[nextState])))
                     maxSum = max(maxSum, sumOfProbValues)
-                currentStepValues[state] = maxSum
+                    if maxSum != -10000:
+                        currentStepValues[state] = maxSum
             for state in states:
                 # prepare for the next iteration
                 self.values[state] = currentStepValues[state]
