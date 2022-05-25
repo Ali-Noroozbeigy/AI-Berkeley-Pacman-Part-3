@@ -184,6 +184,36 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
     def runValueIteration(self):
         "*** YOUR CODE HERE ***"
 
+        states = self.mdp.getStates()
+
+        currentStepValues = util.Counter()  # the updated values will be stored in this
+
+        # V0 of every state is zero
+        for state in states:
+            self.values[state] = 0
+
+
+        n = len(states)
+        j = 0
+        for i in range(self.iterations):
+            state = states[j % n]
+            j += 1
+            actions = self.mdp.getPossibleActions(state)
+            maxSum = -10000
+            for action in actions:
+                probs = self.mdp.getTransitionStatesAndProbs(state, action)
+                sumOfProbValues = 0.0
+                for prob in probs:
+                    nextState, prb = prob
+                    sumOfProbValues += (prb * (self.mdp.getReward(state, action, nextState) + (
+                                self.discount * self.values[nextState])))
+                maxSum = max(maxSum, sumOfProbValues)
+                if maxSum != -10000:
+                    currentStepValues[state] = maxSum
+            for state in states:
+                # prepare for the next iteration
+                self.values[state] = currentStepValues[state]
+
 class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
     """
         * Please read learningAgents.py before reading this.*
