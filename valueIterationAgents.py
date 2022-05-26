@@ -233,4 +233,55 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
 
     def runValueIteration(self):
         "*** YOUR CODE HERE ***"
+        states = self.mdp.getStates()
+        statePredec = {}
 
+        priorityQueue = util.PriorityQueue()
+
+        for state in states:
+            if not self.mdp.isTerminal(state):
+                for action in self.mdp.getPossibleActions(state):
+                    for tsp in self.mdp.getTransitionStatesAndProbs(state, action):
+                        if tsp[0] in statePredec:
+                            statePredec[tsp[0]].add(state)
+                        else:
+                            statePredec[tsp[0]] = set()
+                            statePredec[tsp[0]].add(state)
+
+        for state in states:
+            #maxQ = -10000
+            #q = 0
+            qList = []
+            if not self.mdp.isTerminal(state):
+                actions = self.mdp.getPossibleActions(state)
+                for action in actions:
+                    q = self.getQValue(state, action)
+                    qList.append(q)
+                    #if q > maxQ:
+                        #q = maxQ
+                diff = abs(self.values[state] - max(qList))
+                priorityQueue.push(state, diff * -1)
+
+        for i in range(self.iterations):
+            if priorityQueue.isEmpty():
+                break
+            s = priorityQueue.pop()
+            if not self.mdp.isTerminal(s):
+                qList = []
+                actions = self.mdp.getPossibleActions(s)
+                for action in actions:
+                    q = self.getQValue(s, action)
+                    qList.append(q)
+                self.values[s] = max(qList)
+
+            for predec in statePredec[s]:
+                if not self.mdp.isTerminal(s):
+                    qList = []
+                    actions = self.mdp.getPossibleActions(predec)
+                    for action in actions:
+                        q = self.getQValue(predec, action)
+                        qList.append(q)
+                    diff = abs(self.values[predec] - max(qList))
+
+                    if diff > self.theta:
+                        priorityQueue.update(predec, diff * -1)
