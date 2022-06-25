@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -92,7 +92,7 @@ class QLearningAgent(ReinforcementAgent):
             if self.values[(state, action)] > maxQ:
                 maxQ = self.values[(state, action)]
                 maxStateAction = (state, action)
-        return maxStateAction[1]        
+        return maxStateAction[1]
         util.raiseNotDefined()
 
     def getAction(self, state):
@@ -190,7 +190,6 @@ class PacmanQAgent(QLearningAgent):
 class ApproximateQAgent(PacmanQAgent):
     """
        ApproximateQLearningAgent
-
        You should only have to overwrite getQValue
        and update.  All other QLearningAgent functions
        should work as is.
@@ -209,14 +208,21 @@ class ApproximateQAgent(PacmanQAgent):
           where * is the dotProduct operator
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        features = self.featExtractor.getFeatures(state, action)
+        total = 0
+        for i in features:
+            total += features[i] * self.weights[i]
+        return total
 
     def update(self, state, action, nextState, reward):
         """
            Should update your weights based on transition
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        diff = (reward + self.discount * self.getValue(nextState)) - self.getQValue(state, action)
+        features = self.featExtractor.getFeatures(state, action)
+        for i in features:
+            self.weights[i] = self.weights[i] + self.alpha * diff * features[i]
 
     def final(self, state):
         "Called at the end of each game."
@@ -227,4 +233,11 @@ class ApproximateQAgent(PacmanQAgent):
         if self.episodesSoFar == self.numTraining:
             # you might want to print your weights here for debugging
             "*** YOUR CODE HERE ***"
-            pass
+            print ("Approximate Q-Learning Summary")
+            print ("Learning rate(alpha) : {0}".format(self.alpha))
+            print ("Discount rate(gamma) : {0}".format(self.gamma))
+            print ("Exploration rate(epsilon) : {0}".format(self.epsilon))
+            print ("Training episodes : {0}".format(self.numTraining))
+            print ("=======Feature Weights=======")
+            for i in features:
+              print ("{0} : {1}".format(i, self.weights[i]))
